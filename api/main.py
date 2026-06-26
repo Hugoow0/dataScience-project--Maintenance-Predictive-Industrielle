@@ -1,25 +1,17 @@
 import pandas as pd
-from typing import List
-from enum import Enum
 from fastapi import FastAPI, HTTPException
-from .schemas import SensorInput, PredictionOutput
-import joblib
+from typing import List
 import os
+import joblib
+from .schemas import PredictionOutput, ModelName
 
-app = FastAPI(
-    title="Predictive Maintenance API",
-    description="API pour la prédiction de pannes industrielles sous 24h",
-    version="1.0.0"
-)
+app = FastAPI(title="Predictive Maintenance API", version="1.6.0")
 
-class ModelName(str, Enum):
-    model1 = "model1"
-    model2 = "model2"
-    model3 = "model3"
+DATA_PATH = "data/processed/maintenance_cleaned.csv"
 
 MODEL_PATHS = {
     ModelName.model1: "models/model1.pkl",
-    ModelName.model2: "models/model2.pkl",
+    ModelName.model2: "models/random_forest_model.pkl",
     ModelName.model3: "models/model3.pkl"
 }
 
@@ -29,7 +21,9 @@ def load_models():
         if os.path.exists(path):
             try:
                 loaded[name] = joblib.load(path)
-            except:
+                print(f"Succès : {name} chargé depuis {path}")
+            except Exception as e:
+                print(f"Erreur chargement {name}: {e}")
                 loaded[name] = None
         else:
             loaded[name] = None
@@ -37,61 +31,54 @@ def load_models():
 
 models = load_models()
 
-@app.get("/model-info", tags=["Data"])
-async def get_model_info(model_name: ModelName = ModelName.model1):
-    # Pour l'instant, nous renvoyons des informations fictives sur le modèle. Plus tard, nous chargerons un modèle réel et fournirons ses détails.
-    info = {
-        ModelName.model1: {"name": "Logistic Regression", "f1": 0.78},
-        ModelName.model2: {"name": "Random Forest", "f1": 0.85},
-        ModelName.model3: {"name": "XGBoost", "f1": 0.89},
-    }
-
-    selected = info.get(model_name)
-    return {
-        "selected_model": model_name,
-        "details": selected,
-    }
-
-
 @app.post("/predict", response_model=List[PredictionOutput], tags=["ML"])
-async def predict(model_name: ModelName = ModelName.model1):
-    file_path = "data/raw/industrial_machine_maintenance.csv"
-
+async def predict(model_name: ModelName = ModelName.model2):
     try:
-        if not os.path.exists(file_path):
-            raise HTTPException(status_code=404, detail=f"Fichier non trouvé : {file_path}")
+        if not os.path.exists(DATA_PATH):
+            raise HTTPException(status_code=404, detail=f"Fichier de données introuvable : {DATA_PATH}")
 
-        df = pd.read_csv(file_path)
+        df = pd.read_csv(DATA_PATH)
         
         target_model = models.get(model_name)
         
         results = []
 
-        for index, row in df.iterrows():
-            # Pour l'instant, nous renvoyons des informations fictives, on mettra la vraie logique plus tard
-            rpm_value = row.get('rpm', 0)
-            prob = (rpm_value % 100) / 100.0
+        if target_model is not None:
+            features = [
+                "machine_type", "vibration_rms", "temperature_motor", 
+                "current_phase_avg", "pressure_level", "rpm", 
+                "operating_mode", "hours_since_maintenance", "ambient_temp"
+            ]
             
-            results.append({
-                "probability": round(prob, 3),
-                "prediction": 1 if prob > 0.3 else 0
-            })
+            X = df[features]
+            
+            probabilities = target_model.predict_proba(X)[:, 1]
+            predictions = target_model.predict(X)
+
+            for prob, pred in zip(probabilities, predictions):
+                results.append({
+                    "probability": round(float(prob), 3),
+                    "prediction": int(pred)
+                })
             
         return results
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erreur lors de la lecture ou prédiction : {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Erreur lors de la prédiction : {str(e)}")
 
-@app.get("/health", tags=["System"])
-async def health_check():
-    # Plus tard, nous ajouterons ici une vérification du chargement du modèle.
-    status_models = {name: (os.path.exists(path)) for name, path in MODEL_PATHS.items()}
+@app.get("/model-info")
+async def get_model_info(model_name: ModelName = ModelName.model2):
+    is_loaded = models.get(model_name) is not None
     return {
-        "status": "online",
-        "models_available": status_models,
-        "version": "1.1.0"
+        "model": model_name,
+        "status": "Opérationnel (Réel)" if is_loaded else "Non chargé",
+        "file_path": MODEL_PATHS.get(model_name)
     }
 
-@app.get("/", tags=["System"])
-async def root():
-    return {"message": "Bienvenue sur l'API de Maintenance Prédictive. Accédez à /docs pour la documentation."}
+@app.get("/health")
+async def health_check():
+    return {
+        "status": "online",
+        "data_file_exists": os.path.exists(DATA_PATH),
+        "models_loaded": {name: (m is not None) for name, m in models.items()}
+    }
