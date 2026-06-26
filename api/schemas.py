@@ -19,7 +19,11 @@ class SensorInput(BaseModel):
     hours_since_maintenance: float = Field(..., ge=0)
     ambient_temp: float = Field(..., ge=-50, le=100)
 
-
 class PredictionOutput(BaseModel):
     prediction: int
     probability: float
+
+class ModelName(str, Enum):
+    model1 = "model1"
+    model2 = "model2"
+    model3 = "model3"
