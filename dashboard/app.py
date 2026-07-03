@@ -10,25 +10,52 @@ st.set_page_config(page_title="Dashboard Décisionnel Machine", layout="wide")
 st.title("Dashboard Décisionnel & Analyse Prédictive")
 
 # --- CHARGEMENT DES DONNÉES ET MODÈLES ---
-# (Placez ici votre code pour charger vos datasets X_train, y_test, vos modèles entraînés, etc.)
-
-
 @st.cache_data
 def load_data():
-    # Remplacez par votre vrai chemin vers les données traitées
-    return pd.read_csv() 
+    return pd.read_csv("donnees_machine.csv") 
 
+@st.cache_resource
+def load_models():
+    lr = joblib.load("dataScience-project--Maintenance-Predictive-Industrielle\models\logistic_regression-model.pkl")
+    rf = joblib.load("dataScience-project--Maintenance-Predictive-Industrielle\models\random_forest-model.pkl")
+    dl = joblib.load("dataScience-project--Maintenance-Predictive-Industrielle\models\deep_learning-model.pkl")
+    vc = joblib.load("dataScience-project--Maintenance-Predictive-Industrielle\models\modele_ensemble_maintenance.pkl") #vc c'est pour voting classifier
+    return lr, rf, dl, vc
+
+# Chargement du CSV
 try:
     df = load_data()
     st.session_state["df"] = df 
-    st.success("Données chargées avec succès !")
+    st.success("Données 'donnees_machine.csv' chargées avec succès !")
 except Exception as e:
     st.error(f"Erreur lors du chargement des données : {e}")
 
+# Chargement des modèles
+try:
+    model_lr, model_rf, model_dl, model_vc = load_models()
+    st.session_state["model_lr"] = model_lr
+    st.session_state["model_rf"] = model_rf
+    st.session_state["model_dl"] = model_dl
+    st.session_state["model_vc"] = model_vc
+    st.session_state["X_features"] = df.drop(columns=['Panne'])
+except Exception as e:
+    st.error(f"Erreur lors du chargement des modèles : {e}")
 
+
+# --- BARRE DE NAVIGATION ---
 st.sidebar.header("Navigation")
 page = st.sidebar.radio("Aller vers :", [
     "Analyse des Capteurs & Corrélations", 
     "Performance des Modèles", 
     "Simulation & Prédiction Temps Réel"
 ])
+
+# --- LOGIQUE DE ROUTAGE (Le lien manquant) ---
+if page == "Analyse des Capteurs & Corrélations":
+    exec(open("onglet/analyse_Capteur.py", encoding="utf-8").read())
+
+elif page == "Performance des Modèles":
+    exec(open("onglet/performance_Modeles.py", encoding="utf-8").read())
+
+elif page == "Simulation & Prédiction Temps Réel":
+    exec(open("onglet/simulation.py", encoding="utf-8").read())

@@ -32,11 +32,11 @@ with col1:
     st.subheader("Métriques globales")
     # Exemple de tableau comparatif - Remplacez par vos vrais scores générés par Dev 2 dans reports/
     data_perf = {
-        "Modèle": ["Régression Logistique", "Random Forest", "XGBoost"],
-        "Accuracy": [0.8523, 0.9145, 0.9310], 
-        "Précision": [0.83, 0.90, 0.91],
-        "Recall": [0.78, 0.88, 0.89],
-        "F1-Score": [0.80, 0.89, 0.90]
+        "Modèle": ["Régression Logistique", "Random Forest", "Voting Classifier", "Deep Learning"],
+        "Accuracy": [0.8523, 0.9145, 0.9310, 0.9250],
+        "Précision": [0.83, 0.90, 0.91, 0.89],
+        "Recall": [0.78, 0.88, 0.89, 0.87],
+        "F1-Score": [0.80, 0.89, 0.90, 0.88]
     }
     st.table(pd.DataFrame(data_perf))
     
