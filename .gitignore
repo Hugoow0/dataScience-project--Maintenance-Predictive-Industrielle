@@ -1,1 +1,5 @@
 /api/__pycache__/
+.venv
+Projet-M1-DEV-Sujet-1-Maintenance-Prédictive-Industrielle.pdf
+.pytest_cache
+.vscode
