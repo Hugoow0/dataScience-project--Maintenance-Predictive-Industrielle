@@ -229,10 +229,6 @@ export function PredictionForm({ models, stats, operatingModes, initialValues }:
             <CardDescription>Dataset defaults</CardDescription>
             <CardTitle className="text-lg">{stats.row_count.toLocaleString()} records</CardTitle>
           </CardHeader>
-          <CardContent className="grid gap-2 text-sm text-muted-foreground">
-            <div>Selected model: {initialValues.model}</div>
-            <div>Operating mode options: {operatingModes.join(", ")}</div>
-          </CardContent>
         </Card>
         {renderResult()}
       </div>

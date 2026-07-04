@@ -1,14 +1,34 @@
 import { useEffect, useState } from "react"
 import { BrowserRouter, NavLink, Route, Routes } from "react-router-dom"
-import { Activity, Radar, Sparkles } from "lucide-react"
+import { Activity, Moon, Radar, Sun } from "lucide-react"
 
 import { api } from "@/lib/api"
 import { Badge } from "@/components/ui/badge"
-import { buttonVariants } from "@/components/ui/button"
+import { Button, buttonVariants } from "@/components/ui/button"
 import { Toaster } from "@/components/ui/sonner"
+import { useTheme } from "@/components/theme-provider"
 import { DashboardPage } from "@/pages/DashboardPage"
 import { PredictPage } from "@/pages/PredictPage"
 import { cn } from "@/lib/utils"
+
+function ThemeToggle() {
+  const { theme, setTheme } = useTheme()
+  const isDark =
+    theme === "dark" || (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)
+
+  return (
+    <Button
+      id="theme-toggle"
+      variant="ghost"
+      size="icon"
+      aria-label="Toggle theme"
+      onClick={() => setTheme(isDark ? "light" : "dark")}
+      className="size-8 shrink-0"
+    >
+      {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+    </Button>
+  )
+}
 
 function AppShell() {
   const [health, setHealth] = useState<"loading" | "online" | "offline">("loading")
@@ -77,6 +97,7 @@ function AppShell() {
                 </span>
               )}
             </NavLink>
+            <ThemeToggle />
             <Badge variant={health === "online" ? "default" : health === "loading" ? "secondary" : "destructive"}>
               API {health}
             </Badge>

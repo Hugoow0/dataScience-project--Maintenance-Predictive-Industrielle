@@ -56,16 +56,18 @@ export function PredictPage() {
     const operatingModes = Object.keys(stats.categorical_summary.operating_mode ?? {})
     const defaultOperatingMode = operatingModes.includes("normal") ? "normal" : operatingModes[0] ?? "idle"
 
+    const r2 = (v: number | undefined) => parseFloat((v ?? 0).toFixed(2))
+
     return {
       model: firstModel,
       operating_mode: defaultOperatingMode,
-      vibration_rms: stats.numeric_summary.vibration_rms?.mean ?? 0,
-      temperature_motor: stats.numeric_summary.temperature_motor?.mean ?? 0,
-      current_phase_avg: stats.numeric_summary.current_phase_avg?.mean ?? 0,
-      pressure_level: stats.numeric_summary.pressure_level?.mean ?? 0,
-      rpm: stats.numeric_summary.rpm?.mean ?? 0,
-      hours_since_maintenance: stats.numeric_summary.hours_since_maintenance?.mean ?? 0,
-      ambient_temp: stats.numeric_summary.ambient_temp?.mean ?? 0,
+      vibration_rms: r2(stats.numeric_summary.vibration_rms?.mean),
+      temperature_motor: r2(stats.numeric_summary.temperature_motor?.mean),
+      current_phase_avg: r2(stats.numeric_summary.current_phase_avg?.mean),
+      pressure_level: r2(stats.numeric_summary.pressure_level?.mean),
+      rpm: r2(stats.numeric_summary.rpm?.mean),
+      hours_since_maintenance: r2(stats.numeric_summary.hours_since_maintenance?.mean),
+      ambient_temp: r2(stats.numeric_summary.ambient_temp?.mean),
     }
   }, [models, stats])
 
