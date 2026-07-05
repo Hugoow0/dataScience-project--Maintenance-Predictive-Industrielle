@@ -3,10 +3,10 @@
   "task_type": "classification",
   "target_variable": "failure_within_24h",
   "metrics": {
-    "accuracy": 0.94,
-    "precision": 0.85,
-    "recall": 0.71,
-    "f1": 0.78,
-    "roc_auc": 0.97
+    "accuracy": 0.9390568319226118,
+    "precision": 0.8521400778210116,
+    "recall": 0.7133550488599348,
+    "f1": 0.776595744680851,
+    "roc_auc": 0.9744839478716347
   }
 }

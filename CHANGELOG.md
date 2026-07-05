@@ -1,4 +1,4 @@
-﻿# Changelog — Maintenance Prédictive Industrielle
+# Changelog — Maintenance Prédictive Industrielle
 
 > **Date:** 2026-07-04
 > **Scope:** FastAPI backend + React/Vite dashboard + model registry
@@ -7,7 +7,7 @@
 
 ## Summary
 
-Full-stack wiring of the predictive-maintenance ML models into a production-ready API and a live dashboard. The two newly trained models (`modele_ensemble_maintenance` and `modele_deep_learning_sgd`) are now callable from the dashboard through the same dynamic endpoints that already served the logistic-regression and random-forest artifacts.
+Full-stack wiring of the predictive-maintenance ML models into a production-ready API and a live dashboard. The two newly trained models (`voting_classifier` and `modele_deep_learning_sgd`) are now callable from the dashboard through the same dynamic endpoints that already served the logistic-regression and random-forest artifacts.
 
 ---
 
@@ -29,7 +29,7 @@ Full-stack wiring of the predictive-maintenance ML models into a production-read
 - Introduced a **`ModelBundle`** abstraction so each model's preprocessing is encapsulated:
   - **Logistic Regression** — uses saved `logistic_regression-preprocessor.pkl` (two files treated as one logical model).
   - **Random Forest** — standard sklearn pipeline, no extra preprocessing.
-  - **Ensemble** (`modele_ensemble_maintenance`) — label-encodes categorical columns (`machine_type`, `operating_mode`) before inference; **no scaling**.
+  - **Ensemble** (`voting_classifier`) — label-encodes categorical columns (`machine_type`, `operating_mode`) before inference; **no scaling**.
   - **Deep Learning / SGD** (`modele_deep_learning_sgd`) — label-encodes categoricals **then** applies `StandardScaler` (fitted on an 80 % sample of the training data at API startup).
 - Fixed a **double-encoding bug** where the ensemble path was running `LabelEncoder.transform` twice, causing integer labels to be treated as unseen categories.
 - Added `resolve_bundle(alias)` helper and the `DEFAULT_MACHINE_TYPE` constant (`"CNC"` — the modal value in the dataset) for requests that omit `machine_type`.
@@ -60,7 +60,7 @@ Full-stack wiring of the predictive-maintenance ML models into a production-read
 |---|---|
 | `logistic_regression_metrics.json` | Cached metrics from stratified holdout split |
 | `random_forest_metrics.json` | Cached metrics from stratified holdout split |
-| `modele_ensemble_maintenance.pkl` | Voting/stacking ensemble trained in notebook |
+| `voting_classifier_model.pkl` | Voting/stacking ensemble trained in notebook |
 | `modele_deep_learning_sgd.pkl` | SGD-based neural-network surrogate trained in notebook |
 
 Metrics for the ensemble and SGD models are computed at API startup from the holdout set and merged into the `/dataset/model-comparison` response dynamically.

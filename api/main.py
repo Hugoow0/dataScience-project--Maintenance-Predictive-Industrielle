@@ -70,7 +70,7 @@ NUMERIC_FEATURES = [
 
 CATEGORICAL_FEATURES = ["operating_mode", "machine_type", "failure_type"]
 DEFAULT_MACHINE_TYPE = "CNC"
-LEGACY_ENCODED_MODELS = {"modele_deep_learning_sgd", "modele_ensemble_maintenance"}
+LEGACY_ENCODED_MODELS = {"modele_deep_learning_sgd", "voting_classifier"}
 
 
 @dataclass(frozen=True)
@@ -91,7 +91,7 @@ class ModelBundle:
         return self.estimator is not None
 
     def _prepare_frame(self, features: FeatureInput) -> pd.DataFrame:
-        if self.canonical_name == "modele_ensemble_maintenance":
+        if self.canonical_name == "voting_classifier":
             return transform_legacy_features(features, scale=False)
         if self.canonical_name == "modele_deep_learning_sgd":
             return transform_legacy_features(features, scale=True)
@@ -266,8 +266,8 @@ def discover_bundles() -> dict[str, ModelBundle]:
             aliases.add("xgb")
         if canonical_name == "modele_deep_learning_sgd":
             aliases.update({"dl", "sgd", "deep_learning"})
-        if canonical_name == "modele_ensemble_maintenance":
-            aliases.update({"ensemble", "voting", "xgb_lgb"})
+        if canonical_name == "voting_classifier":
+            aliases.update({"voting_classifier", "voting", "xgb_lgb"})
         metrics_path = MODELS_DIR / f"{canonical_name}_metrics.json"
         bundles[canonical_name] = ModelBundle(
             canonical_name=canonical_name,
@@ -343,6 +343,13 @@ def ensure_metrics_file(bundle: ModelBundle) -> dict[str, float] | None:
         random_state=42,
         stratify=stratify,
     )
+
+    # Apply the same pre-processing that _prepare_frame uses for single-row inference.
+    # Legacy models (voting_classifier, modele_deep_learning_sgd) require label-encoding
+    # of categorical columns; the SGD model also needs StandardScaler.
+    if bundle.canonical_name in LEGACY_ENCODED_MODELS:
+        scale = bundle.canonical_name == "modele_deep_learning_sgd"
+        X_test = transform_legacy_dataframe(X_test, scale=scale)
 
     if bundle.task_type == "regression":
         predictions = bundle.predict_frame(X_test)
