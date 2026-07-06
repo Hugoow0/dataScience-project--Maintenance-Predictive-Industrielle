@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+pydantic
+joblib
+pandas
+numpy
+scipy
+scikit-learn==1.6.1
+pytest
+xgboost
+lightgbm
+keras
+tensorflow

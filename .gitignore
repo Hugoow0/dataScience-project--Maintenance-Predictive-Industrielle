@@ -1,0 +1,8 @@
+# Python bytecode — ignore everywhere
+__pycache__/
+*.py[cod]
+.venv
+Projet-M1-DEV-Sujet-1-Maintenance-Prédictive-Industrielle.pdf
+Projet-M1-DEV-Sujet-1-Maintenance-Prédictive-Industrielle.md
+.pytest_cache
+.vscode
