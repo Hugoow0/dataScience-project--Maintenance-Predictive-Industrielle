@@ -6,8 +6,6 @@ Ce projet vise à développer une solution de maintenance prédictive pour des m
 
 ```
 .
-├── CHANGELOG.md
-├── MODEL_EVALUATION_REPORT.md
 ├── README.md
 ├── SETUP_GUIDE.MD
 ├── api/
@@ -145,3 +143,10 @@ Toutes les commandes suivantes doivent être exécutées depuis le répertoire *
     > **Important**: Assurez-vous que l'API backend est en cours d'exécution avant de lancer le dashboard, car le dashboard l'appelle au démarrage.
 
 ---
+
+### Images
+
+![dashboard](https://github.com/Hugoow0/dataScience-project--Maintenance-Predictive-Industrielle/raw/dev/images/dashboard.png)
+
+![predict](https://github.com/Hugoow0/dataScience-project--Maintenance-Predictive-Industrielle/raw/dev/images/predict.png)
+
